@@ -1,11 +1,15 @@
 package com.mt.services;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,19 +19,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/employee")
 public class EmployeeService {
 
-	
-	@RequestMapping(value = "/getEmployeeDetails", method = RequestMethod.GET)
-	@ResponseBody
-	String uploadImage(HttpServletRequest request, HttpServletResponse response, HttpSession httpSession)
-			throws JSONException {
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
-		JSONObject js = new JSONObject();
-		js.put("Name", "Mithun Technologies");
-		js.put("Calling Name", "Mithun");
-		js.put("DOB", "08-Nov-2011");
-		js.put("Hobbies", "Reading Technical Blogs,Teaching, Helping to Poor People..");
-		js.put("Places he like", "His native place");
+    @RequestMapping(value = "/getEmployeeDetails", method = RequestMethod.GET)
+    @ResponseBody
+    String getEmployee(HttpServletRequest request,
+                       HttpServletResponse response,
+                       HttpSession session) {
 
-		return js.toString();
-}
+        List<Map<String, Object>> employees =
+                jdbcTemplate.queryForList("SELECT * FROM Employee");
+
+        JSONObject js = new JSONObject();
+        js.put("data", employees);
+
+        return js.toString();
+    }
 }
